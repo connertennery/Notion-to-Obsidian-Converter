@@ -23,6 +23,8 @@ Markdown links are converted from `[Link Text](Notion\Link\Path)` to `[[Link Tex
 
 CSV links are converted from `../Relative%20Path/To/File%20Name.md` to `[[File Name]]`. Again, not perfect but it works for most links.
 
+URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` so it captures `http://`, `https://` and other networks like `ipfs://`.
+
 ## Why
 
 Windows can't handle large paths. After unzipping the Notion data I wasn't able to move the folder because Windows doesn't like long paths and Notion put a long uuid on every directory and file.
