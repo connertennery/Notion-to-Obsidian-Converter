@@ -1,14 +1,13 @@
 const fs = require('fs');
 const readline = require('readline');
 
-let startingPath = '';
 var rl = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout,
 });
-rl.question('Notion Export Path:\n', (answer) => {
+rl.question('Notion Export Path:\n', (path) => {
 	const start = Date.now();
-	const output = fixNotionExport(answer);
+	const output = fixNotionExport(path);
 	const elapsed = Date.now() - start;
 
 	console.log(
@@ -40,6 +39,9 @@ const correctMarkdownLinks = (content) => {
 
 	let out = content;
 	for (let i = 0; i < linkFullMatches.length; i++) {
+		if (linkFullMatches[i].includes('://')) {
+			continue;
+		}
 		let linkText = linkTextMatches[i].substring(1, linkTextMatches[i].length - 2);
 		out = out.replace(linkFullMatches[i], `[[${linkText}]]`);
 	}
