@@ -30,6 +30,7 @@ const truncateDirName = (name) => {
 	return name.substring(0, name.lastIndexOf(' '));
 };
 
+const URLRegex = /(:\/\/)|(w{3})|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/;
 const correctMarkdownLinks = (content) => {
 	//* [Link Text](Link Directory + uuid/And Page Name + uuid) => [[LinkText]]
 
@@ -39,7 +40,7 @@ const correctMarkdownLinks = (content) => {
 
 	let out = content;
 	for (let i = 0; i < linkFullMatches.length; i++) {
-		if (linkFullMatches[i].includes('://')) {
+		if (URLRegex.test(linkFullMatches[i])) {
 			continue;
 		}
 		let linkText = linkTextMatches[i].substring(1, linkTextMatches[i].length - 2);
@@ -49,6 +50,7 @@ const correctMarkdownLinks = (content) => {
 };
 
 const correctCSVLinks = (content) => {
+	//* ../Relative%20Path/To/File%20Name.md => [[File Name]]
 	let lines = content.split('\n');
 	let links = 0;
 	for (let x = 0; x < lines.length; x++) {
