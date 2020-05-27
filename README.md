@@ -23,7 +23,7 @@ Markdown links are converted from `[Link Text](Notion\Link\Path)` to `[[Link Tex
 
 CSV links are converted from `../Relative%20Path/To/File%20Name.md` to `[[File Name]]`. Again, not perfect but it works for most links.
 
-URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` so it captures `http://`, `https://` and other networks like `ipfs://`.
+URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` or being an IP, so it captures `http://`, `https://` and other networks like `ipfs://` as well as `xxx.xxx.xxx.xxx` for IPs.
 
 ## Why
 
