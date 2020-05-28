@@ -38,10 +38,14 @@ const correctMarkdownLinks = (content) => {
 	const linkFullMatches = content.match(/(\[(.*?)\])(\((.*?)\))/gi);
 	const linkTextMatches = content.match(/(\[(.*?)\])(\()/gi);
 	const linkFloaterMatches = content.match(/([\S]*.md(\))?)/gi);
-	if (!linkFullMatches && !linkFloaterMatches) return { content: content, links: 0 };
+	const linkNotionMatches = content.match(/([\S]*notion.so(\S*))/g);
+	if (!linkFullMatches && !linkFloaterMatches && !linkNotionMatches) return { content: content, links: 0 };
+
+	let totalLinks = 0;
 
 	let out = content;
 	if (linkFullMatches) {
+		totalLinks += linkFullMatches.length;
 		for (let i = 0; i < linkFullMatches.length; i++) {
 			if (URLRegex.test(linkFullMatches[i])) {
 				continue;
@@ -52,13 +56,29 @@ const correctMarkdownLinks = (content) => {
 		}
 	}
 
-	//! Convert free-floating relativePaths
-	if (linkFloaterMatches) out = out.replace(/([\S]*.md(\))?)/g, convertRelativePath);
+	//! Convert free-floating relativePaths and otion.so links
+	if (linkFloaterMatches) {
+		totalLinks += linkFullMatches ? linkFloaterMatches.length - linkFullMatches.length : linkFloaterMatches.length;
+		out = out.replace(/([\S]*.md(\))?)/g, convertRelativePath);
+	}
+
+	if (linkNotionMatches) {
+		out = out.replace(/([\S]*notion.so(\S*))/g, convertNotionLinks);
+		totalLinks += linkNotionMatches;
+	}
 
 	return {
 		content: out,
 		links: linkFloaterMatches ? linkFloaterMatches.length : linkFullMatches.length,
 	};
+};
+
+const convertNotionLinks = (match, p1, p2, p3) => {
+	return `[[${match
+		.substring(match.lastIndexOf('/') + 1)
+		.split('-')
+		.slice(0, -1)
+		.join(' ')}]]`;
 };
 
 const convertRelativePath = (path) => {
