@@ -25,6 +25,8 @@ CSV links are converted from `../Relative%20Path/To/File%20Name.md` to `[[File N
 
 URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` or being an IP, so it captures `http://`, `https://` and other networks like `ipfs://` as well as `xxx.xxx.xxx.xxx` for IPs.
 
+If a link contains illegal characters `*"/\<>:|?` the character is replaced with a space.
+
 ## Why
 
 Windows can't handle large paths. After unzipping the Notion data I wasn't able to move the folder because Windows doesn't like long paths and Notion put a long uuid on every directory and file.
