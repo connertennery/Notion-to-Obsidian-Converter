@@ -19,9 +19,9 @@ The script searches through every path and removes the long uuid at the end of b
 
 **Conversion Features:**
 
--   Markdown links are converted from `[Link Text](Notion\Link\Path)` to `[[Link Text]]`. It isn't perfect due to name collision, but it works for most links. Some links are `www.notion.so` links when they're related table records and those are converted from `https://www.notion.so/The-page-title-2d41ab7b61d14cec885357ab17d48536` to `[[The page title]]`.
+-   Markdown links are converted from `[Link Text](Notion\Link\Path)` to `[[Link Text]]`. It isn't perfect due to name collision, but it works for most links. Some links are `www.notion.so` links when they're related table records and those are converted from `https://www.notion.so/The-Page-Title-2d41ab7b61d14cec885357ab17d48536` to `[[The Page Title]]`.
 
--   CSV links are converted from `../Relative%20Path/To/File%20Name.md` to `[[File Name]]`. Again, not perfect but it works for most links.
+-   CSV links are converted from `../Relative%20Path/To/Page%20Title.md` to `[[Page Title]]`. Again, not perfect but it works for most links.
 
 -   After CSV's have their links corrected a secondary Markdown file is made with the same name with all of its contents converted into a Markdown table.
 
