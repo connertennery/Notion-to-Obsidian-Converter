@@ -35,20 +35,34 @@ const URLRegex = /(:\/\/)|(w{3})|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/;
 const correctMarkdownLinks = (content) => {
 	//* [Link Text](Link Directory + uuid/And Page Name + uuid) => [[LinkText]]
 
-	const linkFullMatches = content.match(/(\[(.*?)\])(\((.*?)\))/gim);
-	const linkTextMatches = content.match(/(\[(.*?)\])(\()/gim);
-	if (!linkFullMatches) return { content: content, links: 0 };
+	const linkFullMatches = content.match(/(\[(.*?)\])(\((.*?)\))/gi);
+	const linkTextMatches = content.match(/(\[(.*?)\])(\()/gi);
+	const linkFloaterMatches = content.match(/([\S]*.md(\))?)/gi);
+	if (!linkFloaterMatches) return { content: content, links: 0 };
 
 	let out = content;
-	for (let i = 0; i < linkFullMatches.length; i++) {
-		if (URLRegex.test(linkFullMatches[i])) {
-			continue;
+	if (linkFullMatches) {
+		for (let i = 0; i < linkFullMatches.length; i++) {
+			if (URLRegex.test(linkFullMatches[i])) {
+				continue;
+			}
+			let linkText = linkTextMatches[i].substring(1, linkTextMatches[i].length - 2);
+			linkText = linkText.replace(ObsidianIllegalNameRegex, ' ');
+			out = out.replace(linkFullMatches[i], `[[${linkText}]]`);
 		}
-		let linkText = linkTextMatches[i].substring(1, linkTextMatches[i].length - 2);
-		linkText = linkText.replace(ObsidianIllegalNameRegex, ' ');
-		out = out.replace(linkFullMatches[i], `[[${linkText}]]`);
 	}
-	return { content: out, links: linkFullMatches.length };
+
+	//! Convert free-floating relativePaths
+	out = out.replace(/([\S]*.md(\))?)/g, convertRelativePath);
+
+	return {
+		content: out,
+		links: linkFloaterMatches.length,
+	};
+};
+
+const convertRelativePath = (path) => {
+	return `[[${path.split('/').pop().split('%20').slice(0, -1).join(' ')}]]`;
 };
 
 const correctCSVLinks = (content) => {
@@ -62,8 +76,7 @@ const correctCSVLinks = (content) => {
 		for (let y = 0; y < cells.length; y++) {
 			let cell = cells[y];
 			if (cell.includes('.md')) {
-				cell = `[[${cell.split('/').pop().split('%20').slice(0, -1).join(' ')}]]`;
-				cells[y] = cell;
+				cells[y] = convertRelativePath(cell);
 				links++;
 			}
 		}
