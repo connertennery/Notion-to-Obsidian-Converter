@@ -51,7 +51,11 @@ const correctMarkdownLinks = (content) => {
 				continue;
 			}
 			let linkText = linkTextMatches[i].substring(1, linkTextMatches[i].length - 2);
-			linkText = linkText.replace(ObsidianIllegalNameRegex, ' ');
+			if (linkText.includes('.png')) {
+				linkText = convertPNGPath(linkText);
+			} else {
+				linkText = linkText.replace(ObsidianIllegalNameRegex, ' ');
+			}
 			out = out.replace(linkFullMatches[i], `[[${linkText}]]`);
 		}
 	}
@@ -71,6 +75,12 @@ const correctMarkdownLinks = (content) => {
 		content: out,
 		links: linkFloaterMatches ? linkFloaterMatches.length : linkFullMatches.length,
 	};
+};
+
+const convertPNGPath = (path) => {
+	let imageTitle = path.substring(path.lastIndexOf('/') + 1);
+	path = path.substring(0, path.lastIndexOf('%20')).split('%20').join(' ');
+	return `${path}/${imageTitle}`;
 };
 
 const convertNotionLinks = (match, p1, p2, p3) => {
@@ -132,10 +142,12 @@ const fixNotionExport = function (path) {
 
 	for (let i = 0; i < files.length; i++) {
 		let file = files[i];
-		let trunc = truncateFileName(file);
-		fs.renameSync(file, trunc);
-		file = trunc;
-		files[i] = trunc;
+		if (!file.includes('.png')) {
+			let trunc = truncateFileName(file);
+			fs.renameSync(file, trunc);
+			file = trunc;
+			files[i] = trunc;
+		}
 
 		//Fix Markdown Links
 		if (file.substring(file.indexOf('.')) === '.md') {
