@@ -17,15 +17,17 @@ This is a simple script to convert exported Notion notes to Obsidian (or maybe o
 
 The script searches through every path and removes the long uuid at the end of both the directory paths and the file paths.
 
-**Existing Links:**
+**Conversion Features:**
 
-Markdown links are converted from `[Link Text](Notion\Link\Path)` to `[[Link Text]]`. It isn't perfect due to name collision, but it works for most links. Some links are `www.notion.so` links when they're related table records and those are converted from `https://www.notion.so/The-page-title-2d41ab7b61d14cec885357ab17d48536` to `[[The page title]]`.
+-   Markdown links are converted from `[Link Text](Notion\Link\Path)` to `[[Link Text]]`. It isn't perfect due to name collision, but it works for most links. Some links are `www.notion.so` links when they're related table records and those are converted from `https://www.notion.so/The-page-title-2d41ab7b61d14cec885357ab17d48536` to `[[The page title]]`.
 
-CSV links are converted from `../Relative%20Path/To/File%20Name.md` to `[[File Name]]`. Again, not perfect but it works for most links.
+-   CSV links are converted from `../Relative%20Path/To/File%20Name.md` to `[[File Name]]`. Again, not perfect but it works for most links.
 
-URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` or being an IP, so it captures `http://`, `https://` and other networks like `ipfs://` as well as `xxx.xxx.xxx.xxx` for IPs.
+-   After CSV's have their links corrected a secondary Markdown file is made with the same name with all of its contents converted into a Markdown table.
 
-If a link contains illegal characters `*"/\<>:|?` the character is replaced with a space.
+-   URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` or being an IP, so it captures `http://`, `https://` and other networks like `ipfs://` as well as `xxx.xxx.xxx.xxx` for IPs.
+
+-   If a link contains illegal characters `*"/\<>:|?` the character is replaced with a space.
 
 ## Why
 
