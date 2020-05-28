@@ -38,7 +38,7 @@ const correctMarkdownLinks = (content) => {
 	const linkFullMatches = content.match(/(\[(.*?)\])(\((.*?)\))/gi);
 	const linkTextMatches = content.match(/(\[(.*?)\])(\()/gi);
 	const linkFloaterMatches = content.match(/([\S]*.md(\))?)/gi);
-	if (!linkFloaterMatches) return { content: content, links: 0 };
+	if (!linkFullMatches && !linkFloaterMatches) return { content: content, links: 0 };
 
 	let out = content;
 	if (linkFullMatches) {
@@ -53,11 +53,11 @@ const correctMarkdownLinks = (content) => {
 	}
 
 	//! Convert free-floating relativePaths
-	out = out.replace(/([\S]*.md(\))?)/g, convertRelativePath);
+	if (linkFloaterMatches) out = out.replace(/([\S]*.md(\))?)/g, convertRelativePath);
 
 	return {
 		content: out,
-		links: linkFloaterMatches.length,
+		links: linkFloaterMatches ? linkFloaterMatches.length : linkFullMatches.length,
 	};
 };
 
