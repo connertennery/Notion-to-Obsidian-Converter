@@ -30,13 +30,21 @@ const truncateDirName = (name) => {
 	return name.substring(0, name.lastIndexOf(' '));
 };
 
+const replaceAll = (content, target, replacement) => {
+	while (target.test(content)) {
+		content = content.replace(target, replacement);
+	}
+	return content;
+};
+
+const ObsidianIllegalNameRegex = /[\*\"\/\\\<\>\:\|\?]/;
 const URLRegex = /(:\/\/)|(w{3})|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/;
 const correctMarkdownLinks = (content) => {
 	//* [Link Text](Link Directory + uuid/And Page Name + uuid) => [[LinkText]]
 
 	const linkFullMatches = content.match(/(\[(.*?)\])(\((.*?)\))/gim);
 	const linkTextMatches = content.match(/(\[(.*?)\])(\()/gim);
-	if (!linkFullMatches) return content;
+	if (!linkFullMatches) return { content: content, links: 0 };
 
 	let out = content;
 	for (let i = 0; i < linkFullMatches.length; i++) {
@@ -44,6 +52,7 @@ const correctMarkdownLinks = (content) => {
 			continue;
 		}
 		let linkText = linkTextMatches[i].substring(1, linkTextMatches[i].length - 2);
+		linkText = replaceAll(linkText, ObsidianIllegalNameRegex, ' ');
 		out = out.replace(linkFullMatches[i], `[[${linkText}]]`);
 	}
 	return { content: out, links: linkFullMatches.length };
