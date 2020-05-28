@@ -30,14 +30,7 @@ const truncateDirName = (name) => {
 	return name.substring(0, name.lastIndexOf(' '));
 };
 
-const replaceAll = (content, target, replacement) => {
-	while (target.test(content)) {
-		content = content.replace(target, replacement);
-	}
-	return content;
-};
-
-const ObsidianIllegalNameRegex = /[\*\"\/\\\<\>\:\|\?]/;
+const ObsidianIllegalNameRegex = /[\*\"\/\\\<\>\:\|\?]/g;
 const URLRegex = /(:\/\/)|(w{3})|(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/;
 const correctMarkdownLinks = (content) => {
 	//* [Link Text](Link Directory + uuid/And Page Name + uuid) => [[LinkText]]
@@ -52,7 +45,7 @@ const correctMarkdownLinks = (content) => {
 			continue;
 		}
 		let linkText = linkTextMatches[i].substring(1, linkTextMatches[i].length - 2);
-		linkText = replaceAll(linkText, ObsidianIllegalNameRegex, ' ');
+		linkText = linkText.replace(ObsidianIllegalNameRegex, ' ');
 		out = out.replace(linkFullMatches[i], `[[${linkText}]]`);
 	}
 	return { content: out, links: linkFullMatches.length };
@@ -77,6 +70,17 @@ const correctCSVLinks = (content) => {
 		lines[x] = cells.join(',');
 	}
 	return { content: lines.join('\n'), links: links };
+};
+
+const convertCSVToMarkdown = (content) => {
+	const csvCommaReplace = (match, p1, p2, p3, offset, string) => {
+		return `${p1}|${p3}`;
+	};
+
+	let fix = content.replace(/(\S)(\,)((\S)|(\n)|($))/g, csvCommaReplace).split('\n');
+	const headersplit = '-|'.repeat(fix[0].split('').filter((char) => char === '|').length + 1);
+	fix.splice(1, 0, headersplit);
+	return fix.join('\n');
 };
 
 const fixNotionExport = function (path) {
@@ -107,8 +111,10 @@ const fixNotionExport = function (path) {
 			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
 		} else if (file.substring(file.indexOf('.')) === '.csv') {
 			const correctedFileContents = correctCSVLinks(fs.readFileSync(file, 'utf8'));
+			const csvConverted = convertCSVToMarkdown(correctedFileContents.content);
 			if (correctedFileContents.links) csvLinks += correctedFileContents.links;
 			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
+			fs.writeFileSync(file.substring(0, file.indexOf('.')) + '.md', csvConverted, 'utf8');
 		}
 	}
 	for (let i = 0; i < directories.length; i++) {
