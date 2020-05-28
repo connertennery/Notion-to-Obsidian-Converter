@@ -78,8 +78,14 @@ const correctMarkdownLinks = (content) => {
 };
 
 const convertPNGPath = (path) => {
-	let imageTitle = path.substring(path.lastIndexOf('/') + 1);
-	path = path.substring(0, path.lastIndexOf('%20')).split('%20').join(' ');
+	let imageTitle = path
+		.substring(path.lastIndexOf('/') + 1)
+		.split('%20')
+		.join(' ');
+
+	path = convertRelativePath(path.substring(0, path.lastIndexOf('/')));
+	path = path.substring(2, path.length - 2);
+
 	return `${path}/${imageTitle}`;
 };
 
@@ -183,3 +189,16 @@ const fixNotionExport = function (path) {
 		csvLinks: csvLinks,
 	};
 };
+
+// const start = Date.now();
+// const output = fixNotionExport(`C:/Users/Conner/Downloads/WorldBuilding Export`);
+// const elapsed = Date.now() - start;
+
+// console.log(
+// 	`Fixed in ${elapsed}ms
+// ${'-'.repeat(8)}
+// Directories: ${output.directories.length}
+// Files: ${output.files.length}
+// Markdown Links: ${output.markdownLinks}
+// CSV Links: ${output.csvLinks}`
+// );

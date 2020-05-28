@@ -29,6 +29,8 @@ The script searches through every path and removes the long uuid at the end of b
 
 -   If a link contains illegal characters `*"/\<>:|?` the character is replaced with a space.
 
+-   Image links are converted from `![Page%20Title%20c5ae5f01ba5d4fb9a94d13d99397100c/Image%20Name.png](Page%20Title%20c5ae5f01ba5d4fb9a94d13d99397100c/Image%20Name.png)` to `![Page Title/Image Name.png]`
+
 ## Why
 
 Windows can't handle large paths. After unzipping the Notion data I wasn't able to move the folder because Windows doesn't like long paths and Notion put a long uuid on every directory and file.
