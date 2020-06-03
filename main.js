@@ -1,7 +1,7 @@
 const fs = require('fs');
 const readline = require('readline');
 
-var rl = readline.createInterface({
+const rl = readline.createInterface({
 	input: process.stdin,
 	output: process.stdout,
 });
@@ -68,12 +68,12 @@ const correctMarkdownLinks = (content) => {
 
 	if (linkNotionMatches) {
 		out = out.replace(/([\S]*notion.so(\S*))/g, convertNotionLinks);
-		totalLinks += linkNotionMatches;
+		totalLinks += linkNotionMatches.length;
 	}
 
 	return {
 		content: out,
-		links: linkFloaterMatches ? linkFloaterMatches.length : linkFullMatches.length,
+		links: totalLinks,
 	};
 };
 
