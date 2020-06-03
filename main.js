@@ -60,7 +60,7 @@ const correctMarkdownLinks = (content) => {
 		}
 	}
 
-	//! Convert free-floating relativePaths and otion.so links
+	//! Convert free-floating relativePaths and Notion.so links
 	if (linkFloaterMatches) {
 		totalLinks += linkFullMatches ? linkFloaterMatches.length - linkFullMatches.length : linkFloaterMatches.length;
 		out = out.replace(/([\S]*.md(\))?)/g, convertRelativePath);
