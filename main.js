@@ -140,8 +140,8 @@ const fixNotionExport = function (path) {
 
 	let currentDirectory = fs.readdirSync(path, { withFileTypes: true });
 
-	for (var i = 0; i < currentDirectory.length; i++) {
-		var currentPath = path + '\\' + currentDirectory[i].name;
+	for (let i = 0; i < currentDirectory.length; i++) {
+		let currentPath = path + '/' + currentDirectory[i].name;
 		if (currentDirectory[i].isDirectory()) directories.push(currentPath);
 		if (currentDirectory[i].isFile()) files.push(currentPath);
 	}
@@ -189,16 +189,3 @@ const fixNotionExport = function (path) {
 		csvLinks: csvLinks,
 	};
 };
-
-// const start = Date.now();
-// const output = fixNotionExport(`C:/Users/Conner/Downloads/WorldBuilding Export`);
-// const elapsed = Date.now() - start;
-
-// console.log(
-// 	`Fixed in ${elapsed}ms
-// ${'-'.repeat(8)}
-// Directories: ${output.directories.length}
-// Files: ${output.files.length}
-// Markdown Links: ${output.markdownLinks}
-// CSV Links: ${output.csvLinks}`
-// );
