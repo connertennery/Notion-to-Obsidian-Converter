@@ -11,7 +11,7 @@ This is a simple script to convert exported Notion notes to Obsidian (or maybe o
 5. Input the path where your Notion notes are
 6. Move notes folder into Obsidian directory
 
-_Warning: Notion pages that contain parentheses in the title will have them removed so the file will be created without them, even though the link itself will still retain them._
+_Warning: Notion pages that contain parentheses or dashes in the title will have them removed by Notion while exporting your data so the file will be created without them, even though the link itself will still retain them._
 
 ## How it works
 
