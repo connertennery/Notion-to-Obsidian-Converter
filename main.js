@@ -1,5 +1,6 @@
 const fs = require('fs');
 const readline = require('readline');
+const npath = require('path');
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -141,7 +142,7 @@ const fixNotionExport = function (path) {
 	let currentDirectory = fs.readdirSync(path, { withFileTypes: true });
 
 	for (let i = 0; i < currentDirectory.length; i++) {
-		let currentPath = path + '/' + currentDirectory[i].name;
+		let currentPath = npath.format({ dir: path, base: currentDirectory[i].name });
 		if (currentDirectory[i].isDirectory()) directories.push(currentPath);
 		if (currentDirectory[i].isFile()) files.push(currentPath);
 	}
