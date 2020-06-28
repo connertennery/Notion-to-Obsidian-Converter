@@ -8,7 +8,7 @@ const rl = readline.createInterface({
 });
 rl.question('Notion Export Path:\n', (path) => {
 	const start = Date.now();
-	const output = fixNotionExport(path);
+	const output = fixNotionExport(path.trim());
 	const elapsed = Date.now() - start;
 
 	console.log(
