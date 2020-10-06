@@ -24,14 +24,17 @@ CSV Links: ${output.csvLinks}`
 });
 
 const truncateFileName = (name) => {
+	let bn = npath.basename(name);
+	bn = bn.lastIndexOf(' ') > 0 ? bn.substring(0, bn.lastIndexOf(' ')) : bn;
 	return (
-		name.substring(0, name.lastIndexOf(' ')) +
-		name.substring(name.indexOf('.'))
+		npath.dirname(name) + npath.sep + bn + npath.extname(name)
 	);
 };
 
 const truncateDirName = (name) => {
-	return name.substring(0, name.lastIndexOf(' '));
+	let bn = npath.basename(name);
+	bn = bn.lastIndexOf(' ') > 0 ? bn.substring(0, bn.lastIndexOf(' ')) : bn;
+	return npath.dirname(name) + npath.sep + bn;
 };
 
 const ObsidianIllegalNameRegex = /[\*\"\/\\\<\>\:\|\?]/g;
@@ -92,7 +95,12 @@ const convertPNGPath = (path) => {
 		.substring(path.lastIndexOf('/') + 1)
 		.split('%20')
 		.join(' ');
-
+	// imageTitle = truncateFileName(imageTitle);
+	// let image_path = path.substring(0, path.lastIndexOf('/'));
+	// image_path = decodeURI(image_path);
+	// image_path = truncateDirName(image_path);
+	// encodeURI(image_path);
+	// path = convertRelativePath(image_path);
 	path = convertRelativePath(path.substring(0, path.lastIndexOf('/')));
 	path = path.substring(2, path.length - 2);
 
@@ -173,14 +181,14 @@ const fixNotionExport = function (path) {
 		}
 
 		//Fix Markdown Links
-		if (file.substring(file.indexOf('.')) === '.md') {
+		if (npath.extname(file) === '.md') {
 			const correctedFileContents = correctMarkdownLinks(
 				fs.readFileSync(file, 'utf8')
 			);
 			if (correctedFileContents.links)
 				markdownLinks += correctedFileContents.links;
 			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
-		} else if (file.substring(file.indexOf('.')) === '.csv') {
+		} else if (npath.extname(file) === '.csv') {
 			const correctedFileContents = correctCSVLinks(
 				fs.readFileSync(file, 'utf8')
 			);
@@ -191,7 +199,7 @@ const fixNotionExport = function (path) {
 				csvLinks += correctedFileContents.links;
 			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
 			fs.writeFileSync(
-				file.substring(0, file.indexOf('.')) + '.md',
+				npath.dirname(file) + npath.sep + npath.basename(file) + '.md',
 				csvConverted,
 				'utf8'
 			);
@@ -199,8 +207,12 @@ const fixNotionExport = function (path) {
 	}
 	for (let i = 0; i < directories.length; i++) {
 		let dir = directories[i];
-		fs.renameSync(dir, truncateDirName(dir));
-		directories[i] = truncateDirName(dir);
+		let dest = truncateDirName(dir);
+		while(fs.existsSync(dest)) {
+			dest = dest + Math.random().toString(36).slice(2)
+		}
+		fs.renameSync(dir, dest);
+		directories[i] = dest;
 	}
 
 	directories.forEach((dir) => {
