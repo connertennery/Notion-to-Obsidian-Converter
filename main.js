@@ -103,12 +103,6 @@ const convertPNGPath = (path) => {
 		.substring(path.lastIndexOf('/') + 1)
 		.split('%20')
 		.join(' ');
-	// imageTitle = truncateFileName(imageTitle);
-	// let image_path = path.substring(0, path.lastIndexOf('/'));
-	// image_path = decodeURI(image_path);
-	// image_path = truncateDirName(image_path);
-	// encodeURI(image_path);
-	// path = convertRelativePath(image_path);
 	path = convertRelativePath(path.substring(0, path.lastIndexOf('/')));
 	path = path.substring(2, path.length - 2);
 
