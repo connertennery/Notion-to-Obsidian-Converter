@@ -26,15 +26,23 @@ CSV Links: ${output.csvLinks}`
 const truncateFileName = (name) => {
 	let bn = npath.basename(name);
 	bn = bn.lastIndexOf(' ') > 0 ? bn.substring(0, bn.lastIndexOf(' ')) : bn;
-	return (
-		npath.dirname(name) + npath.sep + bn + npath.extname(name)
+	return npath.resolve(
+		npath.format({
+			dir: npath.dirname(name),
+			base: bn + npath.extname(name),
+		})
 	);
 };
 
 const truncateDirName = (name) => {
 	let bn = npath.basename(name);
 	bn = bn.lastIndexOf(' ') > 0 ? bn.substring(0, bn.lastIndexOf(' ')) : bn;
-	return npath.dirname(name) + npath.sep + bn;
+	return npath.resolve(
+		npath.format({
+			dir: npath.dirname(name),
+			base: bn,
+		})
+	);
 };
 
 const ObsidianIllegalNameRegex = /[\*\"\/\\\<\>\:\|\?]/g;
@@ -199,7 +207,12 @@ const fixNotionExport = function (path) {
 				csvLinks += correctedFileContents.links;
 			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
 			fs.writeFileSync(
-				npath.dirname(file) + npath.sep + npath.basename(file) + '.md',
+				npath.resolve(
+					npath.format({
+						dir: npath.dirname(file),
+						base: npath.basename(file, `.csv`) + '.md',
+					})
+				),
 				csvConverted,
 				'utf8'
 			);
@@ -208,8 +221,8 @@ const fixNotionExport = function (path) {
 	for (let i = 0; i < directories.length; i++) {
 		let dir = directories[i];
 		let dest = truncateDirName(dir);
-		while(fs.existsSync(dest)) {
-			dest = dest + Math.random().toString(36).slice(2)
+		while (fs.existsSync(dest)) {
+			dest = `${dest} - ${Math.random().toString(36).slice(2)}`;
 		}
 		fs.renameSync(dir, dest);
 		directories[i] = dest;
