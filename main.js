@@ -223,11 +223,11 @@ const fixNotionExport = function (path) {
 	}
 
 	directories.forEach((dir) => {
-		const reading = fixNotionExport(dir);
-		directories = directories.concat(reading.directories);
-		files = files.concat(reading.files);
-		markdownLinks += reading.markdownLinks;
-		csvLinks += reading.csvLinks;
+		const stats = fixNotionExport(dir);
+		directories = directories.concat(stats.directories);
+		files = files.concat(stats.files);
+		markdownLinks += stats.markdownLinks;
+		csvLinks += stats.csvLinks;
 	});
 
 	return {
