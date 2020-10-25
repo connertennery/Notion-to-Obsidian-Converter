@@ -25,7 +25,7 @@ The script searches through every path and removes the long uuid at the end of b
 
 -   CSV links are converted from `../Relative%20Path/To/Page%20Title.md` to `[[Page Title]]`. Again, not perfect but it works for most links.
 
--   After CSV's have their links corrected a secondary Markdown file is made with the same name with all of its contents converted into a Markdown table.
+-   After CSV's have their links corrected a secondary Markdown file is created with the same name and all of its contents converted into a Markdown table.
 
 -   URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` or being an IP, so it captures `http://`, `https://` and other networks like `ipfs://` as well as `xxx.xxx.xxx.xxx` for IPs.
 
