@@ -121,8 +121,11 @@ const convertRelativePath = (path) => {
 	return `[[${path.split('/').pop().split('%20').slice(0, -1).join(' ')}]]`;
 };
 
-const correctCSVLinks = (content) => {
+const correctCSVLinks = (content, csvDirectory) => {
 	//* ../Relative%20Path/To/File%20Name.md => [[File Name]]
+	const csvFiles = csvDirectory.map((x) =>
+		x.name.substring(0, x.name.lastIndexOf(' '))
+	);
 	let lines = content.split('\n');
 	let links = 0;
 	for (let x = 0; x < lines.length; x++) {
@@ -133,6 +136,9 @@ const correctCSVLinks = (content) => {
 			let cell = cells[y];
 			if (cell.includes('.md')) {
 				cells[y] = convertRelativePath(cell);
+				links++;
+			} else if (y === 0 && csvFiles.includes(cell)) {
+				cells[y] = `[[${cell}]]`;
 				links++;
 			}
 		}
@@ -191,8 +197,15 @@ const fixNotionExport = function (path) {
 				markdownLinks += correctedFileContents.links;
 			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
 		} else if (npath.extname(file) === '.csv') {
+			const csvDirectory = fs.readdirSync(
+				directories.find((x) =>
+					x.includes(file.substring(0, file.lastIndexOf('.')))
+				),
+				{ withFileTypes: true }
+			);
 			const correctedFileContents = correctCSVLinks(
-				fs.readFileSync(file, 'utf8')
+				fs.readFileSync(file, 'utf8'),
+				csvDirectory
 			);
 			const csvConverted = convertCSVToMarkdown(
 				correctedFileContents.content
