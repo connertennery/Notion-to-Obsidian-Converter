@@ -121,26 +121,66 @@ const convertRelativePath = (path) => {
 	return `[[${path.split('/').pop().split('%20').slice(0, -1).join(' ')}]]`;
 };
 
+const removeRelativePath = (path) => {
+	return `${path.split('/').pop().split('%20').slice(0, -1).join(' ')}`;
+};
+
 const correctCSVLinks = (content, csvDirectory) => {
 	//* ../Relative%20Path/To/File%20Name.md => [[File Name]]
-	const csvFiles = csvDirectory.map((x) =>
-		x.name.substring(0, x.name.lastIndexOf(' '))
-	);
+	let csvFiles = [];
+	if (csvDirectory)
+		csvFiles = csvDirectory.map((x) =>
+			x.name.substring(0, x.name.lastIndexOf(' '))
+		);
 	let lines = content.split('\n');
 	let links = 0;
 	for (let x = 0; x < lines.length; x++) {
 		let line = lines[x];
+		//! ISSUE:
+		//* Cells can hvae commas inside of them. This is pretty difficult to circumvent.
+		//* An idea to solve a few of the issues is to look for any matches in the whole line to the csvFiles.
+		//* The problem with that is if you have a simple enough page name from the field, you could have numerous matches in the line that may be incorrect links.
+		//! UPDATE:
+		//* Notion exports cells that have commas with surrounding quotations. Should be easier to deal with.
+		//* e.g. Blue, Red => "Blue, Red"
 		cells = line.split(',');
 
 		for (let y = 0; y < cells.length; y++) {
 			let cell = cells[y];
-			if (cell.includes('.md')) {
-				cells[y] = convertRelativePath(cell);
-				links++;
-			} else if (y === 0 && csvFiles.includes(cell)) {
-				cells[y] = `[[${cell}]]`;
-				links++;
+			//! ISSUE:
+			//* The first cell can both be linked to a page and also have an exact link inside of it.
+			//* e.g. [[This cell links to this [[page]] specifically]] if `page` is a link but the whole cell itself can be linked to a subdirectory page
+			//* Decision: This is opinionated, but I'm going to link the whole cell if it can be matched.
+
+			if (y === 0) {
+				//If the first cell has a path we need to remove it because some
+				if (cell.includes('.md')) {
+					let cellSplit = cell.split(' ');
+					cellSplit.forEach((cellComponent, index) => {
+						if (cellComponent.includes('.md')) {
+							cellSplit[index] = removeRelativePath(
+								cellComponent
+							);
+						}
+					});
+					cells[y] = cellSplit.join(' ').trim();
+					cell = cells[y];
+				}
+				if (csvFiles.includes(cell)) {
+					cells[y] = `[[${cell}]]`;
+					links++;
+					continue;
+				}
 			}
+
+			let cellSplit = cell.split(' ');
+			cellSplit.forEach((cellComponent, index) => {
+				if (cellComponent.includes('.md')) {
+					cellSplit[index] = convertRelativePath(cellComponent);
+					links++;
+				}
+			});
+			cells[y] = cellSplit.join(' ').trim();
 		}
 		lines[x] = cells.join(',');
 	}
@@ -197,12 +237,14 @@ const fixNotionExport = function (path) {
 				markdownLinks += correctedFileContents.links;
 			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
 		} else if (npath.extname(file) === '.csv') {
-			const csvDirectory = fs.readdirSync(
-				directories.find((x) =>
-					x.includes(file.substring(0, file.lastIndexOf('.')))
-				),
-				{ withFileTypes: true }
+			const csvMatchedDirectory = directories.find((x) =>
+				x.includes(file.substring(0, file.lastIndexOf('.')))
 			);
+			let csvDirectory = undefined;
+			if (csvMatchedDirectory)
+				csvDirectory = fs.readdirSync(csvMatchedDirectory, {
+					withFileTypes: true,
+				});
 			const correctedFileContents = correctCSVLinks(
 				fs.readFileSync(file, 'utf8'),
 				csvDirectory
