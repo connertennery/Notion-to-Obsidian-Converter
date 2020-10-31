@@ -246,8 +246,7 @@ const fixNotionExport = function (path) {
 					withFileTypes: true,
 				});
 			const correctedFileContents = correctCSVLinks(
-				fs.readFileSync(file, 'utf8'),
-				csvDirectory
+				fs.readFileSync(file, 'utf8')
 			);
 			const csvConverted = convertCSVToMarkdown(
 				correctedFileContents.content
