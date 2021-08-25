@@ -1,3 +1,7 @@
+> Note: I'm unfortunately very tied up with work at this time, but feel free to open issues with any requests, suggestions, questions, or bugs! I'll try to address them as soon as life settles down again. Pull requests are welcome!
+> 
+> Thank you! <3
+
 # Notion to Obsidian Converter
 
 This is a simple script to convert exported Notion notes to Obsidian (or maybe other systems too).
@@ -21,13 +25,13 @@ The script searches through every path and removes the long uuid at the end of b
 
 **Conversion Features:**
 
--   Markdown links are converted from `[Link Text](Notion\Link\Path)` to `[[Link Text]]`. It isn't perfect due to name collision, but it works for most links. Some links are `www.notion.so` links when they're related table records and those are converted from `https://www.notion.so/The-Page-Title-2d41ab7b61d14cec885357ab17d48536` to `[[The Page Title]]`.
+-   Markdown links are converted from `[Link Text](Notion\Link\Path)` to `[[Link Text]]`. It isn't perfect due to name collision, but it works for most links. Some links contain `www.notion.so` when they are related table records and those are converted from `https://www.notion.so/The-Page-Title-2d41ab7b61d14cec885357ab17d48536` to `[[The Page Title]]`.
 
 -   CSV links are converted from `../Relative%20Path/To/Page%20Title.md` to `[[Page Title]]`. Again, not perfect but it works for most links.
 
 -   After CSV's have their links corrected a secondary Markdown file is created with the same name and all of its contents converted into a Markdown table.
 
--   URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` or being an IP, so it captures `http://`, `https://` and other networks like `ipfs://` as well as `xxx.xxx.xxx.xxx` for IPs.
+-   URL links found in Markdown are left as-is: `[Link Text](URL)` because Obsidian renders these correctly. The signifier for a "valid URL" is just containing `://` or if it matches a standard IP address structure, so it captures `http://`, `https://` and other networks like `ipfs://` as well as `xxx.xxx.xxx.xxx`.
 
 -   If a link contains illegal characters `*"/\<>:|?` the character is replaced with a space.
 
@@ -40,3 +44,9 @@ Windows can't handle large paths. After unzipping the Notion data I wasn't able 
 ## Note
 
 This is not made to be robust. Don't run it twice on the same export or it's likely to fail and truncate paths unnecessarily.
+
+
+# Contributors
+- [me](https://github.com/connertennery)
+- [zeyus](https://github.com/zeyus)
+- all of the users who have given helpful feedback to make the project more stable and helped cover edge cases!
