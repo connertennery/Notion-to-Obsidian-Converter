@@ -49,4 +49,5 @@ This is not made to be robust. Don't run it twice on the same export or it's lik
 # Contributors
 - [me](https://github.com/connertennery)
 - [zeyus](https://github.com/zeyus)
+- [nguyentran0212](https://github.com/nguyentran0212)
 - all of the users who have given helpful feedback to make the project more stable and helped cover edge cases!
