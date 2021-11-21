@@ -148,9 +148,10 @@ const convertCSVToMarkdown = (content) => {
 
 	let fix = content
 		.replace(/(\S)(\,)((\S)|(\n)|($))/g, csvCommaReplace)
-		.split('\n');
-	const headersplit = '-|'.repeat(
-		fix[0].split('').filter((char) => char === '|').length + 1
+		.split('\n')
+		.map((l) => "|" + l.trim() + "|");
+	const headersplit = '|' + '---|'.repeat(
+		fix[0].split('').filter((char) => char === '|').length -1
 	);
 	fix.splice(1, 0, headersplit);
 	return fix.join('\n');
