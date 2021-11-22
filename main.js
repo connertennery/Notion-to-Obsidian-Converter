@@ -8,11 +8,11 @@ const rl = readline.createInterface({
 });
 rl.question('Notion Export Path:\n', (path) => {
 	const start = Date.now();
-	const output = fixNotionExport(path.trim());
+	const output = main(path.trim());
 	const elapsed = Date.now() - start;
 
 	console.log(
-		`Fixed in ${elapsed}ms
+`Fixed in ${elapsed}ms
 ${'-'.repeat(8)}
 Directories: ${output.directories.length}
 Files: ${output.files.length}
@@ -23,24 +23,148 @@ CSV Links: ${output.csvLinks}`
 	rl.close();
 });
 
+const stats = {
+	markdownLinks: 0,
+	csvLinks: 0
+}
+
+const lookup = {
+	directories: [],
+	files: [],
+	fileLinks: [],
+	urlLinks: [],
+}
+
+function main(path) {
+	console.log(`Starting conversion`);
+	return processDirectory(path);
+}
+
+function processDirectory(path) {
+	// const directories = [];
+	// const files = [];
+	// let markdownLinks = 0;
+	// let csvLinks = 0;
+
+	let [directories, files] = readDirectory(path);
+
+	let [markdownLinks, csvLinks] = processFiles(files);
+
+	renameDirectories(directories);
+
+	directories.forEach((dir) => {
+		const processStats = processDirectory(dir);
+		directories = directories.concat(processStats.directories);
+		files = files.concat(processStats.files);
+		markdownLinks += processStats.markdownLinks;
+		csvLinks += processStats.csvLinks;
+	});
+
+	return {
+		directories: directories,
+		files: files,
+		markdownLinks: markdownLinks,
+		csvLinks: csvLinks,
+	};
+}
+
+function readDirectory(path) {
+	const directories = [];
+	const files = [];
+	let currentDirectory = fs.readdirSync(path, { withFileTypes: true });
+
+	for (let i = 0; i < currentDirectory.length; i++) {
+		let currentPath = npath.format({
+			dir: path,
+			base: currentDirectory[i].name,
+		});
+		if (currentDirectory[i].isDirectory()) directories.push(currentPath);
+		if (currentDirectory[i].isFile()) files.push(currentPath);
+	}
+	return [directories, files];
+}
+
+function processFiles(files) {
+	let markdownLinks = 0;
+	let csvLinks = 0;
+	for (let i = 0; i < files.length; i++) {
+		let file = files[i];
+		if (!file.includes('.png')) {
+			let trunc = truncateFileName(file);
+			fs.renameSync(file, trunc);
+			file = trunc;
+			files[i] = trunc;
+		}
+
+		//Fix Markdown Links
+		if (npath.extname(file) === '.md') {
+			const correctedFileContents = correctMarkdownLinks(
+				fs.readFileSync(file, 'utf8')
+			);
+
+			if (correctedFileContents.links)
+				markdownLinks += correctedFileContents.links;
+
+			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
+
+		} else if (npath.extname(file) === '.csv') {
+			const correctedFileContents = correctCSVLinks(
+				fs.readFileSync(file, 'utf8')
+			);
+			const csvConverted = convertCSVToMarkdown(
+				correctedFileContents.content
+			);
+			if (correctedFileContents.links)
+				csvLinks += correctedFileContents.links;
+			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
+			fs.writeFileSync(
+				npath.resolve(
+					npath.format({
+						dir: npath.dirname(file),
+						base: npath.basename(file, `.csv`) + '.md',
+					})
+				),
+				csvConverted,
+				'utf8'
+			);
+		}
+	}
+
+	return [markdownLinks, csvLinks];
+}
+
+function renameDirectories(directories) {
+	for (let i = 0; i < directories.length; i++) {
+		let dir = directories[i];
+		let dest = truncateDirName(dir);
+		while (fs.existsSync(dest)) {
+			dest = `${dest} - ${Math.random().toString(36).slice(2)}`;
+		}
+		fs.renameSync(dir, dest);
+		directories[i] = dest;
+	}
+	return directories;
+}
+
+
 const truncateFileName = (name) => {
-	let bn = npath.basename(name);
-	bn = bn.lastIndexOf(' ') > 0 ? bn.substring(0, bn.lastIndexOf(' ')) : bn;
+	let baseName = npath.basename(name);
+	let spaceIndex = baseName.lastIndexOf(' ');
 	return npath.resolve(
 		npath.format({
 			dir: npath.dirname(name),
-			base: bn + npath.extname(name),
+			base: (spaceIndex > 0 ? baseName.substring(0, spaceIndex) : baseName) + npath.extname(name),
 		})
 	);
 };
 
 const truncateDirName = (name) => {
-	let bn = npath.basename(name);
-	bn = bn.lastIndexOf(' ') > 0 ? bn.substring(0, bn.lastIndexOf(' ')) : bn;
+	let baseName = npath.basename(name);
+	let spaceIndex = baseName.lastIndexOf(' ');
 	return npath.resolve(
 		npath.format({
 			dir: npath.dirname(name),
-			base: bn,
+			base: spaceIndex > 0 ? baseName.substring(0, spaceIndex) : baseName,
 		})
 	);
 };
@@ -155,86 +279,4 @@ const convertCSVToMarkdown = (content) => {
 	);
 	fix.splice(1, 0, headersplit);
 	return fix.join('\n');
-};
-
-const fixNotionExport = function (path) {
-	let directories = [];
-	let files = [];
-	let markdownLinks = 0;
-	let csvLinks = 0;
-
-	let currentDirectory = fs.readdirSync(path, { withFileTypes: true });
-
-	for (let i = 0; i < currentDirectory.length; i++) {
-		let currentPath = npath.format({
-			dir: path,
-			base: currentDirectory[i].name,
-		});
-		if (currentDirectory[i].isDirectory()) directories.push(currentPath);
-		if (currentDirectory[i].isFile()) files.push(currentPath);
-	}
-
-	for (let i = 0; i < files.length; i++) {
-		let file = files[i];
-		if (!file.includes('.png')) {
-			let trunc = truncateFileName(file);
-			fs.renameSync(file, trunc);
-			file = trunc;
-			files[i] = trunc;
-		}
-
-		//Fix Markdown Links
-		if (npath.extname(file) === '.md') {
-			const correctedFileContents = correctMarkdownLinks(
-				fs.readFileSync(file, 'utf8')
-			);
-			if (correctedFileContents.links)
-				markdownLinks += correctedFileContents.links;
-			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
-		} else if (npath.extname(file) === '.csv') {
-			const correctedFileContents = correctCSVLinks(
-				fs.readFileSync(file, 'utf8')
-			);
-			const csvConverted = convertCSVToMarkdown(
-				correctedFileContents.content
-			);
-			if (correctedFileContents.links)
-				csvLinks += correctedFileContents.links;
-			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
-			fs.writeFileSync(
-				npath.resolve(
-					npath.format({
-						dir: npath.dirname(file),
-						base: npath.basename(file, `.csv`) + '.md',
-					})
-				),
-				csvConverted,
-				'utf8'
-			);
-		}
-	}
-	for (let i = 0; i < directories.length; i++) {
-		let dir = directories[i];
-		let dest = truncateDirName(dir);
-		while (fs.existsSync(dest)) {
-			dest = `${dest} - ${Math.random().toString(36).slice(2)}`;
-		}
-		fs.renameSync(dir, dest);
-		directories[i] = dest;
-	}
-
-	directories.forEach((dir) => {
-		const stats = fixNotionExport(dir);
-		directories = directories.concat(stats.directories);
-		files = files.concat(stats.files);
-		markdownLinks += stats.markdownLinks;
-		csvLinks += stats.csvLinks;
-	});
-
-	return {
-		directories: directories,
-		files: files,
-		markdownLinks: markdownLinks,
-		csvLinks: csvLinks,
-	};
 };
