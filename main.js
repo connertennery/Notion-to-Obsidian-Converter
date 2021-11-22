@@ -23,11 +23,14 @@ CSV Links: ${output.csvLinks}`
 	rl.close();
 });
 
+//TODO use this?
 const stats = {
 	markdownLinks: 0,
 	csvLinks: 0
 }
 
+//TODO (gh:#12) build lookup so the entire export can be used when fixing links
+//ref: https://github.com/connertennery/Notion-to-Obsidian-Converter/issues/12
 const lookup = {
 	directories: [],
 	files: [],
@@ -41,15 +44,8 @@ function main(path) {
 }
 
 function processDirectory(path) {
-	// const directories = [];
-	// const files = [];
-	// let markdownLinks = 0;
-	// let csvLinks = 0;
-
 	let [directories, files] = readDirectory(path);
-
 	let [markdownLinks, csvLinks] = processFiles(files);
-
 	renameDirectories(directories);
 
 	directories.forEach((dir) => {
@@ -96,6 +92,7 @@ function processFiles(files) {
 			files[i] = trunc;
 		}
 
+		//TODO split extensions into their own, extension-specific function
 		//Fix Markdown Links
 		if (npath.extname(file) === '.md') {
 			const correctedFileContents = correctMarkdownLinks(
