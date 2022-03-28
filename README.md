@@ -17,6 +17,18 @@ This is a simple script to convert exported Notion notes to Obsidian (or maybe o
 
 _Warning: Notion pages that contain parentheses or dashes in the title will have them removed by Notion while exporting your data so the file will be created without them, even though the link itself will still retain them._
 
+```sh
+node main.js [args] [path_to_export]
+
+node main.js /my/notion/export
+
+node main.js my_export
+
+node main.js -v[vv] my_export
+
+node main.js --help
+```
+
 ## How it works
 
 **Paths:**
