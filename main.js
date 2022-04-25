@@ -1,5 +1,5 @@
 const fs = require('fs');
-const readline = require('readline/promises');
+const readline = require('readline-promise');
 const npath = require('path');
 
 let exportPath;
