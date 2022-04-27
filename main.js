@@ -1,5 +1,5 @@
 const fs = require('fs');
-const readline = require('readline/promises');
+const readline = require('readline');
 const npath = require('path');
 
 let exportPath;
@@ -119,7 +119,7 @@ function parseArgs(args) {
 }
 
 
-async function main() {
+function main() {
 	//Must happen immediately
 	if (process.argv.includes(`-vvv`))
 		flags.logging = 4;
@@ -133,24 +133,19 @@ async function main() {
 			output: process.stdout,
 		});
 
-		const path = await rl.question(`Notion Export Path:\n`);
-		rl.close();
-		vlog(4, `Input: \`${path}\``);
-		exportPath = path.trim();
+		rl.question(`Notion Export Path:\n`, (path) => {
+			rl.close();
+			vlog(4, `Input: \`${path}\``);
+			exportPath = path.trim();
+			startConversion(exportPath);
+		});
 	}
-
-	vlog(1, `Starting conversion`);
-	const output = convertDirectory(exportPath);
-
-	console.log(
-		`Fixed in ${output.elapsed}ms
-${'-'.repeat(8)}
-Directories: ${output.directories.length}
-Files: ${output.files.length}
-Markdown Links: ${output.markdownLinks}
-CSV Links: ${output.csvLinks}`
-	);
+	else {
+		startConversion(exportPath);
+	}
 }
+
+
 
 const truncateFileName = (name) => {
 	vlog(4, `Truncating file name: ${name}`);
@@ -409,7 +404,17 @@ const convertDirectory = function (path) {
 };
 
 function startConversion(path) {
-	vlog(1, `Beginning Conversion`);
+	vlog(1, `Starting conversion`);
+	const output = convertDirectory(exportPath);
+
+	vlog(1,
+		`Fixed in ${output.elapsed}ms
+${'-'.repeat(8)}
+Directories: ${output.directories.length}
+Files: ${output.files.length}
+Markdown Links: ${output.markdownLinks}
+CSV Links: ${output.csvLinks}`
+	);
 }
 
 function vlog(level, message) {
