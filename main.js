@@ -1,11 +1,11 @@
-const readline = require('readline/promises');
+const readline = require('readline');
 
 const { vlog, flags } = require("./src/logger.js");
 const { parseArgs } = require("./src/cli.js");
 const { convertDirectory } = require("./src/filesystem.js");
 
 
-async function main() {
+function main() {
 	let exportPath;
 
 	//Must happen immediately
@@ -21,23 +21,16 @@ async function main() {
 			output: process.stdout,
 		});
 
-		const path = await rl.question(`Notion Export Path:\n`);
-		rl.close();
-		vlog(4, `Input: \`${path}\``);
-		exportPath = path.trim();
+		rl.question(`Notion Export Path:\n`, (path) => {
+			rl.close();
+			vlog(4, `Input: \`${path}\``);
+			exportPath = path.trim();
+			startConversion(exportPath);
+		});
 	}
-
-	vlog(1, `Starting conversion`);
-	const output = convertDirectory(exportPath);
-
-	console.log(
-		`Fixed in ${output.elapsed}ms
-${'-'.repeat(8)}
-Directories: ${output.directories.length}
-Files: ${output.files.length}
-Markdown Links: ${output.markdownLinks}
-CSV Links: ${output.csvLinks}`
-	);
+	else {
+		startConversion(exportPath);
+	}
 }
 
 main();
