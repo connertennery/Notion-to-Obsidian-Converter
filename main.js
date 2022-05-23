@@ -333,7 +333,6 @@ const convertDirectory = function (path) {
 		if (npath.extname(file) === '.md') {
 			vlog(3, `Fixing Markdown links`);
 			const correctedFileContents = correctMarkdownLinks(
-				file,
 				fs.readFileSync(file, 'utf8')
 			);
 			if (correctedFileContents.links)
