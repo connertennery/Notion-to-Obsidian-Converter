@@ -186,7 +186,7 @@ const correctMarkdownLinks = (content) => {
 
 	let totalLinks = 0;
 
-	let out = content;
+	let out = decodeURI(content);
 	if (linkFullMatches) {
 		totalLinks += linkFullMatches.length;
 		for (let i = 0; i < linkFullMatches.length; i++) {
