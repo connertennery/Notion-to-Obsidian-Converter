@@ -186,16 +186,18 @@ const correctMarkdownLinks = (content) => {
 
 	let totalLinks = 0;
 
-	let out = decodeURI(content);
+	let out = content;
 	if (linkFullMatches) {
 		totalLinks += linkFullMatches.length;
 		for (let i = 0; i < linkFullMatches.length; i++) {
 			if (URLRegex.test(linkFullMatches[i])) {
 				continue;
 			}
-			let linkText = linkTextMatches[i].substring(
+			let linkDecoded = tryDecodeURI(linkTextMatches[i]);
+
+			let linkText = linkDecoded.substring(
 				1,
-				linkTextMatches[i].length - 2
+				linkDecoded.length - 2
 			);
 			vlog(4, `Fixing Markdown link: ${linkText}`);
 			if (linkText.includes('.png')) {
@@ -235,23 +237,23 @@ const convertPNGPath = (path) => {
 		.split('%20')
 		.join(' ');
 	path = convertRelativePath(path.substring(0, path.lastIndexOf('/')));
-	path = path.substring(2, path.length - 2);
+	path = tryDecodeURI(path.substring(2, path.length - 2));
 
-	return `${path}/${imageTitle}`;
+	return `${path}/${tryDecodeURI(imageTitle)}`;
 };
 
 const convertNotionLinks = (match, p1, p2, p3) => {
 	vlog(4, `Converting Notion.so link: ${match}`);
-	return `[[${match
+	return `[[${tryDecodeURI(match
 		.substring(match.lastIndexOf('/') + 1)
 		.split('-')
 		.slice(0, -1)
-		.join(' ')}]]`;
+		.join(' '))}]]`;
 };
 
 const convertRelativePath = (path) => {
 	vlog(4, `Converting relative path: ${path}`);
-	return `[[${path.split('/').pop().split('%20').slice(0, -1).join(' ')}]]`;
+	return `[[${tryDecodeURI(path.split('/').pop().split('%20').slice(0, -1).join(' '))}]]`;
 };
 
 const correctCSVLinks = (content) => {
@@ -331,6 +333,7 @@ const convertDirectory = function (path) {
 		if (npath.extname(file) === '.md') {
 			vlog(3, `Fixing Markdown links`);
 			const correctedFileContents = correctMarkdownLinks(
+				file,
 				fs.readFileSync(file, 'utf8')
 			);
 			if (correctedFileContents.links)
@@ -417,9 +420,25 @@ CSV Links: ${output.csvLinks}`
 	);
 }
 
+function tryDecodeURI(encoded) {
+	let linkDecoded = encoded;
+	try {
+		linkDecoded = decodeURI(linkDecoded);
+	}
+	catch (e) {
+		verror(1, `Error decoding text: ${encoded}`);
+	}
+	return linkDecoded
+}
+
 function vlog(level, message) {
 	if (flags.logging >= level)
 		console.log(message);
+}
+
+function verror(level, message) {
+	if (flags.logging >= level)
+		console.error(message);
 }
 
 main();
