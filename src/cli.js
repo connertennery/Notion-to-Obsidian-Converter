@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { vlog, flags } = require("./logger.js");
 
 const argHelp = [
