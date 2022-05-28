@@ -7,4 +7,9 @@ function vlog(level, message) {
 		console.log(message);
 }
 
-module.exports = { vlog, flags };
+function verror(level, message) {
+	if (flags.logging >= level)
+		console.error(message);
+}
+
+module.exports = { vlog, verror, flags };

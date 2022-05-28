@@ -1,4 +1,4 @@
-const { vlog } = require("./logger.js");
+const { vlog, verror } = require("./logger.js");
 
 const removeSpaceUnicodeAndNotionIds = (text) => {
 	if (!text.includes('%20')) { return text };
@@ -19,28 +19,36 @@ const convertPNGPath = (path) => {
 
 const convertNotionLinks = (match, p1, p2, p3) => {
 	vlog(4, `Converting Notion.so link: ${match}`);
-	return `[[${match
-		.substring(match.lastIndexOf('/') + 1)
-		.split('-')
-		.slice(0, -1)
-		.join(' ')}]]`;
+	link = match
+			.substring(match.lastIndexOf('/') + 1)
+			.split('-')
+			.slice(0, -1)
+			.join(' ')
+
+	return `[[${tryDecodeURI(link)}]]`;
 };
 
 const convertRelativePath = (path) => {
 	vlog(4, `Converting relative path: ${path}`);
-	return `[[${path.split('/').pop().split('%20').slice(0, -1).join(' ')}]]`;
+	path = path.split('/').pop().split('%20').slice(0, -1).join(' ')
+	
+	return `[[${tryDecodeURI(path)}]]`;
 };
 
 const getLinkText = (link) => {
-	return link
-		.match(/(\[(.*?)\])(\()/gi)[0]
-		.slice(1, -2); // remove final "]("
+	link_text = link
+			 .match(/(\[(.*?)\])(\()/gi)[0]
+			 .slice(1, -2); // remove final "]("
+	
+	return link_text
 }
 
 const getLinkURL = (link) => {
-	return link
-		.match(/\]\((.*?)\)/gi)[0]
-		.slice(2, -1)
+	link_url = link
+				 .match(/\]\((.*?)\)/gi)[0]
+				 .slice(2, -1)
+
+	return link_url
 }
 
 const isExternalURL = (link) => {
@@ -91,7 +99,7 @@ const cleanFullLink = (match) => {
 		return match.replace(match, `[${linkText}](${linkURL})`);
 	} else {
 		linkText = cleanLinkText(linkText);
-		return match.replace(match, `[[${linkText}]]`);
+		return match.replace(match, `[[${tryDecodeURI(linkText)}]]`);
 	}
 }
 
@@ -157,5 +165,16 @@ const correctMarkdownLinks = (content) => {
 		links: totalLinks,
 	};
 };
+
+const tryDecodeURI = (encoded) => {
+	let linkDecoded = encoded;
+	try {
+		linkDecoded = decodeURI(linkDecoded);
+	}
+	catch (e) {
+		verror(1, `Error decoding text: ${encoded}`);
+	}
+	return linkDecoded
+}
 
 module.exports = { correctMarkdownLinks, getLinkURL }

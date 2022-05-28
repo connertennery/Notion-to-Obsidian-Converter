@@ -1,6 +1,6 @@
 const readline = require('readline');
 
-const { vlog, flags } = require("./src/logger.js");
+const { vlog, verror, flags } = require("./src/logger.js");
 const { parseArgs } = require("./src/cli.js");
 const { convertDirectory } = require("./src/filesystem.js");
 
