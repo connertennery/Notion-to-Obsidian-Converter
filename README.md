@@ -57,6 +57,15 @@ Windows can't handle large paths. After unzipping the Notion data I wasn't able 
 
 This is not made to be robust. Don't run it twice on the same export or it's likely to fail and truncate paths unnecessarily.
 
+## Development
+
+**Prerequisite**: [Jest](https://jestjs.io/).
+
+To run the tests execute:
+
+```
+npm test
+```
 
 # Contributors
 - [me](https://github.com/connertennery)
