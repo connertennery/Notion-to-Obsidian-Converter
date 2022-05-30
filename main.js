@@ -202,10 +202,16 @@ const correctMarkdownLinks = (content) => {
 			vlog(4, `Fixing Markdown link: ${linkText}`);
 			if (linkText.includes('.png')) {
 				linkText = convertPNGPath(linkText);
+			} else if (linkFullMatches[i].includes('.png')) {
+				linkText = convertPNGLink(linkFullMatches[i]);
 			} else {
 				linkText = linkText.replace(ObsidianIllegalNameRegex, ' ');
 			}
-			out = out.replace(linkFullMatches[i], `[[${linkText}]]`);
+
+			if (linkText[0] === '[')
+				out = out.replace(linkFullMatches[i], linkText);
+			else
+				out = out.replace(linkFullMatches[i], `[[${linkText}]]`);
 		}
 	}
 
@@ -228,6 +234,19 @@ const correctMarkdownLinks = (content) => {
 		content: out,
 		links: totalLinks,
 	};
+};
+
+/**
+ * Strips Notion UUID from PNG link 
+ * @param {string} link Markdown link of format [title](link%20to/image.png)
+ * @returns {string} Markdown link
+ */
+const convertPNGLink = (link) => {
+	vlog(4, `Converting PNG link: ${link}`);
+	const linkSplit = link.lastIndexOf('/');
+	const linkPath = link.substring(0, linkSplit).split('%20').slice(0, -1).join('%20');
+	const imageTitle = link.substring(linkSplit);
+	return `${linkPath}${imageTitle}`;
 };
 
 const convertPNGPath = (path) => {
