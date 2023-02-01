@@ -6,6 +6,7 @@ let exportPath;
 
 const flags = {
 	logging: 1,
+	deleteHeaders: false,
 }
 
 const argHelp = [
@@ -75,6 +76,10 @@ function parseArgs(args) {
 			case `-q`:
 				vlog(4, `Setting logging to 0`);
 				flags.logging = 0;
+				break;
+			case `--delete-headers`:
+				vlog(4, `Setting delete headers to true`);
+				flags.deleteHeaders = true;
 				break;
 			case `--help`:
 			case `-h`:
@@ -356,7 +361,13 @@ const convertDirectory = function (path) {
 			);
 			if (correctedFileContents.links)
 				markdownLinks += correctedFileContents.links;
-			vlog(4, `Writing corrected Markdown links to disk`);
+
+			if (flags.deleteHeaders) {
+				vlog(1, `Deleting header`);
+				correctedFileContents.content = deleteNotionHeader(npath.basename(file), correctedFileContents.content);
+			}
+
+			vlog(4, `Writing corrected Markdown content to disk`);
 			fs.writeFileSync(file, correctedFileContents.content, 'utf8');
 		} else if (npath.extname(file) === '.csv') {
 			vlog(3, `Fixing CSV links`);
@@ -436,6 +447,15 @@ Files: ${output.files.length}
 Markdown Links: ${output.markdownLinks}
 CSV Links: ${output.csvLinks}`
 	);
+}
+
+function deleteNotionHeader(fileName, content) {
+ 	const lines = content.split('\n');
+	if (lines[0].includes(`# `)) {
+		lines.shift(); // delete header
+		lines.shift(); // delete padding after header
+	}
+	return lines.join('\n');
 }
 
 function tryDecodeURI(encoded) {
