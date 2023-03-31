@@ -4,6 +4,8 @@
   "description": "This is a simple script to convert exported Notion notes to Obsidian (or maybe other systems too).",
   "main": "main.js",
   "scripts": {
+    "start": "node dist/main.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/connertennery/Notion-to-Obsidian-Converter/issues"
   },
-  "homepage": "https://github.com/connertennery/Notion-to-Obsidian-Converter/README.md"
+  "homepage": "https://github.com/connertennery/Notion-to-Obsidian-Converter/README.md",
+  "devDependencies": {
+    "@types/node": "18.15.11",
+    "typescript": "5.0.3"
+  }
 }
